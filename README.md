@@ -8,35 +8,42 @@ The image contains ASE Studio, the course's version of [gem5](https://github.com
 >
 > So far it has only been tested on an Apple Silicon Mac. Windows, Linux and Intel/AMD computers are untested, so please [report any problems](https://github.com/mohammad-mallaee/ase-studio-docker/issues).
 
-## Before you start
+## Install
 
-Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and open it. Mac users can use [OrbStack](https://orbstack.dev/) instead.
+You only need to do this once.
 
-## Start ASE Studio
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and open it. Mac users can use [OrbStack](https://orbstack.dev/) instead.
+2. Install the `ase-studio` command:
 
-Docker has to be running first. ASE Studio then opens in your browser by itself, or you can go to <http://127.0.0.1:8765>.
+   **Mac and Linux**: paste this into a terminal.
 
-### Windows
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/mohammad-mallaee/ase-studio-docker/main/install.sh | bash
+   ```
 
-Paste this into PowerShell:
+   **Windows**: paste this into PowerShell.
 
-```powershell
-curl.exe -fsSL -o "$env:TEMP\ase-studio.bat" https://raw.githubusercontent.com/mohammad-mallaee/ase-studio-docker/main/ase-studio.bat; & "$env:TEMP\ase-studio.bat"
-```
+   ```powershell
+   irm https://raw.githubusercontent.com/mohammad-mallaee/ase-studio-docker/main/install.ps1 | iex
+   ```
 
-Or download [`ase-studio.bat`](https://github.com/mohammad-mallaee/ase-studio-docker/raw/main/ase-studio.bat) and double-click it. If Windows warns you about the file, choose **More info**, then **Run anyway**.
+## Use it
 
-### Mac and Linux
-
-Paste this into a terminal:
+Make sure Docker is running, then type this in a terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mohammad-mallaee/ase-studio-docker/main/ase-studio.sh | bash
+ase-studio
 ```
 
-## Stop ASE Studio
+ASE Studio opens in your browser by itself, or you can go to <http://127.0.0.1:8765>. The first start downloads about 1 GB, and later starts work offline.
 
-Press **Ctrl+C** in the window where it is running. On Windows, answer `Y` if it asks whether to terminate the batch job.
+| Command | What it does |
+|---|---|
+| `ase-studio` | Starts ASE Studio and opens your browser |
+| `ase-studio stop` | Stops it. You can also press **Ctrl+C** in its terminal, and answer `Y` if Windows asks |
+| `ase-studio update` | Downloads the newest tested version |
+| `ase-studio uninstall` | Removes the command and the image, and keeps your projects |
+| `ase-studio help` | Lists these commands |
 
 ## Your files
 
@@ -46,11 +53,13 @@ Simulation results aren't kept when ASE Studio stops, so run the simulation agai
 
 ## Updates
 
-ASE Studio never updates by itself. When a new tested version is released, you'll see a notice in the terminal window when you start it, and you can keep using your current version for as long as you like. To update, stop ASE Studio, run this command, and start it again:
+ASE Studio never updates by itself. When a new tested version is released, you'll see a notice in the terminal when you start it, and you can keep using your current version for as long as you like. To update, stop ASE Studio, then run:
 
 ```bash
-docker pull ghcr.io/mohammad-mallaee/ase-studio-docker:latest
+ase-studio update
 ```
+
+To update the `ase-studio` command itself, run the install command again.
 
 **Don't use the update option inside the app:** those updates haven't been tested for this image, and they are lost when ASE Studio stops.
 
@@ -61,17 +70,13 @@ docker pull ghcr.io/mohammad-mallaee/ase-studio-docker:latest
 
 ## Troubleshooting
 
+**"command not found" or "not recognized"**: open a new terminal so it picks up the new command, and try again.
+
 **"Docker isn't running"**: open Docker Desktop, wait until it is ready, and try again.
 
-**"port is already allocated"**: another program is using port 8765, or another copy of ASE Studio is running. Close it and try again.
+**"port is already allocated"**: another program is using port 8765. Close it and try again.
 
-**"The container name is already in use"**: an earlier copy is still running, often because its window was closed. To stop it, run:
-
-```bash
-docker rm -f ase-studio
-```
-
-**The page doesn't load**: wait a few seconds and refresh. If it still doesn't load, check the ASE Studio window for errors.
+**The page doesn't load**: wait a few seconds and refresh. If it still doesn't load, check the ASE Studio terminal for errors.
 
 **`BrokenPipeError` in the log**: this is harmless. It means the browser left or reloaded the page before a request finished.
 
@@ -100,7 +105,7 @@ git ls-remote https://github.com/cad-polito-it/gem5.git refs/heads/stable
 3. Compare a few programs against the official environment, with both CPU models.
 4. In the **Actions** tab, run **Release to students**. This moves `latest` to the candidate. New students get it on their first start. Existing students see a notice when they next start ASE Studio, and get it if they choose to update.
 
-Changes to `ase-studio.sh`, `ase-studio.bat` or this README take effect without building an image.
+Changes to the launchers, the installers or this README don't build an image. Students only get a changed launcher when they run the install command again.
 
 ### How it works
 
@@ -108,7 +113,8 @@ Changes to `ase-studio.sh`, `ase-studio.bat` or this README take effect without 
 |---|---|
 | `Dockerfile` | Compiles gem5 and packages it with ASE Studio and the compiler |
 | `start.sh` | Runs inside the container and starts the ASE Studio backend |
-| `ase-studio.sh`, `ase-studio.bat` | Start the container from the student's computer |
+| `ase-studio.sh`, `ase-studio.bat` | The `ase-studio` command on the student's computer |
+| `install.sh`, `install.ps1` | Put the `ase-studio` command on the student's `PATH` |
 | `.github/workflows/build-image.yml` | Builds both architectures and publishes `candidate` |
 | `.github/workflows/release.yml` | Moves `latest` to the tested candidate |
 
