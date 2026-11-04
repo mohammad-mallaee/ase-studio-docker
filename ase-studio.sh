@@ -2,7 +2,7 @@
 # Runs on your own machine: starts the container and opens ASE Studio in a browser.
 set -euo pipefail
 
-image="${ASE_STUDIO_IMAGE:-ase-studio:local}"
+image="${ASE_STUDIO_IMAGE:-ghcr.io/mohammad-mallaee/ase-studio-docker:latest}"
 data_dir="${ASE_STUDIO_DATA:-$HOME/ASE-Studio}"
 url="http://127.0.0.1:8765"
 
@@ -12,6 +12,12 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 mkdir -p "$data_dir"
+
+# docker run alone would keep using the copy already downloaded, so get updates
+# here. Stay usable offline, or with an image that only exists locally.
+if ! docker pull "$image"; then
+  echo "Couldn't check for updates, so using the copy already on this machine." >&2
+fi
 
 # Open the browser once the server answers, while docker run holds the terminal.
 (

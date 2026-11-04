@@ -2,7 +2,14 @@
 # Works for linux/amd64 and linux/arm64 (Apple Silicon).
 
 ARG SIMULATOR_REF=main
+ARG STUDIO_REF=main
 ARG GEM5_REF=stable
+
+# The exact versions in the image. To update one, change it here and push. Changing
+# GEM5_COMMIT recompiles gem5; the other two reuse the compiled gem5 from the cache.
+ARG GEM5_COMMIT=b6ee23f7ac035ed8fe52ed13d7d0b2d86440bf4c
+ARG SIMULATOR_COMMIT=99512cdc77128576dc05e1bea9af071a01da9cb4
+ARG STUDIO_COMMIT=950ee860e8688a68430ca1e5fe07f7ba4dbc510d
 
 ########## Stage 1: compile gem5 (the slow part) ##########
 FROM ubuntu:22.04 AS gem5-build
@@ -16,8 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       protobuf-compiler libprotoc-dev libgoogle-perftools-dev python3-dev \
       libboost-all-dev pkg-config
 
+ARG GEM5_COMMIT
 RUN git clone --depth 1 --branch "${GEM5_REF}" \
-      https://github.com/cad-polito-it/gem5.git /gem5
+      https://github.com/cad-polito-it/gem5.git /gem5 \
+    && cd /gem5 \
+    && git fetch --depth 1 origin "${GEM5_COMMIT}" \
+    && git reset --hard "${GEM5_COMMIT}"
 
 # --ignore-style skips gem5's interactive git-hook prompt, which has no terminal
 # to answer it here. Lower BUILD_JOBS if the compiler runs out of memory.
@@ -28,6 +39,7 @@ RUN cd /gem5 \
 ########## Stage 2: what students actually download ##########
 FROM ubuntu:22.04
 ARG SIMULATOR_REF
+ARG STUDIO_REF
 ARG XPACK_VERSION=14.3.0-1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -42,8 +54,16 @@ USER student
 
 # ASE Studio refuses to start unless these are real Git checkouts on the
 # expected branches, so they are kept as clones rather than copied files.
+# ASE Studio must already be on its branch here. Otherwise its startup check switches
+# the files after Python has loaded them, leaving an old backend with a new frontend.
+ARG SIMULATOR_COMMIT
+ARG STUDIO_COMMIT
 RUN git clone --branch "${SIMULATOR_REF}" --recurse-submodules \
-      https://github.com/cad-polito-it/ase_riscv_gem5_sim.git /opt/ase/sim
+      https://github.com/cad-polito-it/ase_riscv_gem5_sim.git /opt/ase/sim \
+    && cd /opt/ase/sim \
+    && git reset --hard "${SIMULATOR_COMMIT}" \
+    && git submodule update --init \
+    && git -C ase_studio checkout -B "${STUDIO_REF}" "${STUDIO_COMMIT}"
 
 # Tools go in the default locations from setup_default, so nothing needs
 # configuring. A prebuilt compiler replaces hours of building riscv-gnu-toolchain.
@@ -66,9 +86,13 @@ RUN set -e; \
     rm -f "${name}" "${name}.sha"
 
 # Fail the build now, not on a student's machine, if a library is missing or
-# the compiler rejects the flags ASE Studio uses.
+# the compiler rejects the flags ASE Studio uses, or if its startup check would
+# still switch to different files.
 RUN set -e; \
     cd /opt/ase/sim; \
+    ASE_STUDIO_HOST_ROOT=/opt/ase/sim PYTHONDONTWRITEBYTECODE=1 \
+      python3 ase_studio/backend.py --check-startup; \
+    test "$(git -C ase_studio rev-parse HEAD)" = "${STUDIO_COMMIT}"; \
     if ldd tools/gem5/build/RISCV/gem5.opt | grep "not found"; then exit 1; fi; \
     printf '.globl _start\n_start:\n  li a0, 0\n  li a7, 93\n  ecall\n' > /tmp/t.s; \
     tools/riscv-toolchain/bin/riscv-none-elf-gcc -march=rv32imafd_zicsr_zifencei \
