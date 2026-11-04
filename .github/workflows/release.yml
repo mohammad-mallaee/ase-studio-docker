@@ -1,5 +1,5 @@
 # Run by hand from the Actions tab once the candidate image has been tested.
-# Students download "latest" the next time they start ASE Studio.
+# Students get "latest" on their first start, or when they choose to update.
 name: Release to students
 
 on:

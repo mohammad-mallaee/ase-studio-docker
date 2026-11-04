@@ -1,0 +1,3 @@
+# Stored with its Windows line endings, so raw GitHub downloads keep them too.
+*.bat -text
+*.sh text eol=lf

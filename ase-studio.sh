@@ -13,11 +13,33 @@ fi
 
 mkdir -p "$data_dir"
 
-# docker run alone would keep using the copy already downloaded, so get updates
-# here. Stay usable offline, or with an image that only exists locally.
-if ! docker pull "$image"; then
-  echo "Couldn't check for updates, so using the copy already on this machine." >&2
-fi
+# Tell the student about a newer release without downloading it. Any failure, such
+# as being offline or running a local image, just skips the notice.
+check_for_new_version() {
+  local reference repo tag installed token published
+  case "$image" in
+    ghcr.io/*:*) ;;
+    *) return 0 ;;
+  esac
+  reference="${image#ghcr.io/}"
+  repo="${reference%:*}"
+  tag="${reference##*:}"
+  installed="$(docker image inspect "$image" --format '{{json .RepoDigests}}' 2>/dev/null)" || return 0
+  token="$(curl -fsS --max-time 3 "https://ghcr.io/token?scope=repository:$repo:pull" 2>/dev/null \
+    | sed -E 's/.*"token":"([^"]+)".*/\1/')" || return 0
+  published="$(curl -fsSI --max-time 3 -H "Authorization: Bearer $token" \
+    -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+    "https://ghcr.io/v2/$repo/manifests/$tag" 2>/dev/null \
+    | tr -d '\r' | awk 'tolower($1) == "docker-content-digest:" { print $2 }')" || return 0
+  if [[ -n "$published" && "$installed" != *"$published"* ]]; then
+    echo
+    echo "A new version of ASE Studio is available. You can keep using this one."
+    echo "To update, stop ASE Studio, run this command, and start it again:"
+    echo "  docker pull $image"
+    echo
+  fi
+}
+check_for_new_version || true
 
 # Open the browser once the server answers, while docker run holds the terminal.
 (
