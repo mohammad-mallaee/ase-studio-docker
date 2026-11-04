@@ -84,6 +84,13 @@ To update the `ase-studio` command itself, run the install command again.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Credits
+## License
 
-ASE Studio, gem5 and the simulator are developed by their own authors and keep their own licences. See [ase-studio](https://github.com/cad-polito-it/ase-studio), [ase_riscv_gem5_sim](https://github.com/cad-polito-it/ase_riscv_gem5_sim) and [gem5](https://github.com/cad-polito-it/gem5).
+The `Dockerfile`, scripts and documentation in this repository are licensed under the [GNU General Public License v2.0](LICENSE).
+
+The published image also contains software developed by other authors, which keeps its own licence. The exact versions are pinned in the [`Dockerfile`](Dockerfile):
+
+- [ASE Studio](https://github.com/cad-polito-it/ase-studio)
+- [ase_riscv_gem5_sim](https://github.com/cad-polito-it/ase_riscv_gem5_sim)
+- [gem5](https://github.com/cad-polito-it/gem5)
+- [xPack RISC-V GCC](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack), the compiler
