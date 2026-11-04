@@ -65,3 +65,5 @@ if [[ "$needs_new_terminal" == true ]]; then
 else
   echo "To start it, run: ase-studio"
 fi
+echo
+"$target" help

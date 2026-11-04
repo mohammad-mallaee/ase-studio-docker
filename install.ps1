@@ -41,4 +41,6 @@ if ($alreadyInstalled) {
     Write-Host 'You also need Docker: https://www.docker.com/products/docker-desktop/'
   }
   Write-Host 'To start it, run: ase-studio'
+  Write-Host ''
+  & $target help
 }
