@@ -7,6 +7,11 @@ launcher_url="${ASE_STUDIO_LAUNCHER_URL:-https://raw.githubusercontent.com/moham
 bin_dir="$HOME/.local/bin"
 target="$bin_dir/ase-studio"
 
+already_installed=false
+if [[ -e "$target" ]]; then
+  already_installed=true
+fi
+
 mkdir -p "$bin_dir"
 
 # Download next to the target first, so a failed download can't break an earlier install.
@@ -45,6 +50,11 @@ case ":$PATH:" in
     needs_new_terminal=true
     ;;
 esac
+
+if [[ "$already_installed" == true ]]; then
+  echo "ASE Studio is already installed."
+  exit 0
+fi
 
 echo "ASE Studio is installed."
 if ! command -v docker >/dev/null 2>&1; then

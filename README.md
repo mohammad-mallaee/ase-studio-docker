@@ -47,7 +47,7 @@ ASE Studio opens in your browser by itself, or you can go to <http://127.0.0.1:8
 
 ## Your files
 
-Projects and submission ZIPs are saved in the `ASE-Studio` folder in your home folder, and they stay there when ASE Studio stops or updates.
+Projects and submission ZIPs are saved in the `ASE-Projects` folder in your home folder, and they stay there when ASE Studio stops or updates.
 
 Simulation results aren't kept when ASE Studio stops, so run the simulation again to see them. Export anything you want to keep.
 
@@ -65,7 +65,7 @@ To update the `ase-studio` command itself, run the install command again.
 
 ## Known limitations
 
-- **Open With** and **Open Folder** don't work, because they need a Linux desktop. You can open your files from the `ASE-Studio` folder instead.
+- **Open With** and **Open Folder** don't work, because they need a Linux desktop. You can open your files from the `ASE-Projects` folder instead.
 - Projects copied from an older setup may fail to build if their `Makefile` contains `include ../demo.mk`. Replace that line with `include $(ASE_STUDIO_DEMO_MK)`.
 
 ## Troubleshooting

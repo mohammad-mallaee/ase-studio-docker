@@ -3,7 +3,7 @@ rem The ase-studio command on Windows. install.ps1 puts this file on the PATH.
 setlocal
 
 if not defined ASE_STUDIO_IMAGE set "ASE_STUDIO_IMAGE=ghcr.io/mohammad-mallaee/ase-studio-docker:latest"
-if not defined ASE_STUDIO_DATA set "ASE_STUDIO_DATA=%USERPROFILE%\ASE-Studio"
+if not defined ASE_STUDIO_DATA set "ASE_STUDIO_DATA=%USERPROFILE%\ASE-Projects"
 set "ASE_STUDIO_URL=http://127.0.0.1:8765"
 set "ASE_STUDIO_CONTAINER=ase-studio"
 set "ASE_STUDIO_INSTALL_DIR=%LOCALAPPDATA%\Programs\ase-studio\"

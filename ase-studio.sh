@@ -3,7 +3,7 @@
 set -euo pipefail
 
 image="${ASE_STUDIO_IMAGE:-ghcr.io/mohammad-mallaee/ase-studio-docker:latest}"
-data_dir="${ASE_STUDIO_DATA:-$HOME/ASE-Studio}"
+data_dir="${ASE_STUDIO_DATA:-$HOME/ASE-Projects}"
 url="http://127.0.0.1:8765"
 container="ase-studio"
 installed_command="$HOME/.local/bin/ase-studio"

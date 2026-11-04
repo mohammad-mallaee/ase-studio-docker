@@ -9,6 +9,7 @@ $launcherUrl = if ($env:ASE_STUDIO_LAUNCHER_URL) { $env:ASE_STUDIO_LAUNCHER_URL 
 }
 $installDir = Join-Path $env:LOCALAPPDATA 'Programs\ase-studio'
 $target = Join-Path $installDir 'ase-studio.bat'
+$alreadyInstalled = Test-Path $target
 
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
@@ -32,8 +33,12 @@ if (($env:Path -split ';') -notcontains $installDir) {
   $env:Path = "$env:Path;$installDir"
 }
 
-Write-Host 'ASE Studio is installed.'
-if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-  Write-Host 'You also need Docker: https://www.docker.com/products/docker-desktop/'
+if ($alreadyInstalled) {
+  Write-Host 'ASE Studio is already installed.'
+} else {
+  Write-Host 'ASE Studio is installed.'
+  if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    Write-Host 'You also need Docker: https://www.docker.com/products/docker-desktop/'
+  }
+  Write-Host 'To start it, run: ase-studio'
 }
-Write-Host 'To start it, run: ase-studio'
