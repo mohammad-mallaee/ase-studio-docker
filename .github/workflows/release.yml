@@ -1,9 +1,15 @@
 # Run by hand from the Actions tab once the candidate image has been tested.
 # Students get "latest" on their first start, or when they choose to update.
-name: Release to students
+# Each run also adds a dated tag, which can be released again to roll back.
+name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      source:
+        description: Image tag to release. To roll back, enter an earlier release tag.
+        required: true
+        default: candidate
 
 permissions:
   contents: read
@@ -20,7 +26,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Point latest at the tested candidate
+      - name: Point latest and a dated tag at the source image
+        env:
+          SOURCE: ${{ inputs.source }}
         run: |
           image="ghcr.io/${GITHUB_REPOSITORY,,}"
-          docker buildx imagetools create -t "$image:latest" "$image:candidate"
+          release_tag="release-$(date -u +%Y-%m-%d)-${GITHUB_RUN_NUMBER}"
+          docker buildx imagetools create -t "$image:latest" -t "$image:$release_tag" "$image:$SOURCE"
+          echo "Released \`$SOURCE\` as \`latest\` and \`$release_tag\`." >> "$GITHUB_STEP_SUMMARY"

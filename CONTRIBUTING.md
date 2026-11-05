@@ -21,7 +21,14 @@ git ls-remote https://github.com/cad-polito-it/gem5.git refs/heads/stable
    ```
 
 3. Compare a few programs against the official environment, with both CPU models.
-4. In the **Actions** tab, run **Release to students**. This moves `latest` to the candidate. New students get it on their first start. Existing students see a notice when they next start ASE Studio, and get it if they choose to update.
+4. In the **Actions** tab, run **Release to students**. This moves `latest` to the candidate and adds a dated tag, such as `release-2026-11-05-2`. New students get it on their first start. Existing students see a notice when they next start ASE Studio, and get it if they choose to update.
+
+### Rolling back
+
+1. Find the last good release tag on the [package page](https://github.com/mohammad-mallaee/ase-studio-docker/pkgs/container/ase-studio-docker).
+2. Run **Release to students** again, and enter that tag as the image to release.
+
+New students get the old version straight away. Students who already updated see the notice next time they start ASE Studio, and go back by running `ase-studio update`, so tell them to do that.
 
 Changes to the launchers, the installers or the docs don't build an image. Students only get a changed launcher when they run the install command again.
 
